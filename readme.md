@@ -10,7 +10,61 @@
             - 使用互斥锁（mutex）和条件变量（condition variable）来实现线程间的同步
             - 构造函数，创建线程池，并启动线程
             - 析构函数，停止线程池，并等待所有线程结束
-2. Memory: 
+        2. debug:
+            1. 查看子进程pid:`top -H` or `ps -eLf | grep a.out`
+2. Memory: `g++ -o memory main.cpp `
+    1. 原理：
+        - shared_ptr：使用引用计数来管理内存，当引用计数为0时，自动释放内存。
+            - 支持拷贝构造函数和赋值操作符，但是需要传递所有权。
+            - 支持移动语义，使用std::move()函数将所有权转移给新的shared_ptr。
+            - 支持&,*操作符，get()函数，release()释放当前所有权ptr,cnt--。
+        - unique_ptr：独占指针，只能有一个指针指向同一块内存，当unique_ptr被销毁时，自动释放内存。
+            - 禁用拷贝构造函数和赋值操作符A(const A&) = delete; A& operator=(const A&) = delete;
+            - 支持移动语义A(const A&&) = default; A& operator=(const A&&) = default;
+            - 支持&,*操作符，get()函数，release()函数释放所有权，返回裸指针。
+        - 传递右值：
+            ```cpp
+            // 1. 显示移动
+            munique_ptr<int> ptr1(new int(10));
+            munique_ptr<int> ptr2 = std::move(ptr1); // 触发移动构造函数
+            munique_ptr<int> ptr3;
+            ptr3 = std::move(ptr2); // 触发移动赋值运算符
+
+            // 2. 函数返回值优化
+            munique_ptr<int> createPtr() {
+                munique_ptr<int> temp(new int(42));
+                return temp; // 自动触发移动语义（即使没有显式使用std::move）
+            }
+
+            munique_ptr<int> p = createPtr(); // 触发移动构造
+
+            // 3. 标准库容器
+            std::vector<munique_ptr<int>> vec;
+
+            // 添加元素（push_back会移动临时对象）
+            vec.push_back(munique_ptr<int>(new int(1)));
+
+            // 插入元素（使用std::move）
+            munique_ptr<int> p(new int(2));
+            vec.push_back(std::move(p));
+
+            // 调整容器大小（元素会被移动）
+            vec.resize(10);
+
+            // 4. 函数参数
+            void process(munique_ptr<int> ptr) {
+                // ...
+            }
+
+            munique_ptr<int> original(new int(3));
+            process(std::move(original)); // 触发移动构造创建参数
+
+            // 5. 交换对象
+            munique_ptr<int> a(new int(10));
+            munique_ptr<int> b(new int(20));
+            std::swap(a, b); // 内部会使用移动语义进行交换
+            ```
+        
 3. Thread safe single:`g++ -o thread_safe_single main.cpp`
     1. 原理：
         - 局部静态变量（函数内的 static 变量）只会初始化一次，并且这种初始化是线程安全的。

@@ -1,4 +1,15 @@
-1. Thread pool: `g++ -o thread_pool main.cpp -lpthread`
+1. Thread pool: 
+    1. C style:`g++ -o thread_pool main.cpp -lpthread`
+    1. C++ style:`g++ -o thread_pool_cpp thread_pool.cpp -lpthread`
+        1. 原理：
+            - 使用一个任务队列来存储待处理的任务。queue<TaskType>,using TaskType = std::function<void()>;
+                - std::function<返回(参数，参数)>
+            - 使用一个线程池来执行任务队列中的任务。vector<thread>
+            - 提供一个接口来向任务队列中添加任务。addTask
+            - 提供一个接口来停止线程池。stop
+            - 使用互斥锁（mutex）和条件变量（condition variable）来实现线程间的同步
+            - 构造函数，创建线程池，并启动线程
+            - 析构函数，停止线程池，并等待所有线程结束
 2. Memory: 
 3. Thread safe single:`g++ -o thread_safe_single main.cpp`
     1. 原理：

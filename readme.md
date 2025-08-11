@@ -112,3 +112,7 @@
         - 释放内存，free(memory);
         - allocate():if(freelist == nullptr) {return nullptr;} else {void * ret = freelist; freelist = *(void**)freelist; return ret;}
         - deallocate(ptr): *(void**)ptr = freelist; freelist = ptr; 检查内存是否在范围内。
+6. Bloom filter:`g++ -o bloom_filter main.cpp`
+    1. 原理：
+        - 使用多个哈希函数将元素映射到位数组的不同位置。std::hash<T>{}(lem) ^(i*size)
+        - 查询元素是否存在时，使用相同的哈希函数计算元素的位置，并检查这些位置是否都为1。如果所有位置都为1，则元素可能存在；如果有一个位置为0，则元素一定不存在。

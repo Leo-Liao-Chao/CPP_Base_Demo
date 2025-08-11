@@ -63,8 +63,7 @@
             munique_ptr<int> a(new int(10));
             munique_ptr<int> b(new int(20));
             std::swap(a, b); // 内部会使用移动语义进行交换
-            ```
-        
+            ```        
 3. Thread safe single:`g++ -o thread_safe_single main.cpp`
     1. 原理：
         - 局部静态变量（函数内的 static 变量）只会初始化一次，并且这种初始化是线程安全的。
@@ -106,4 +105,10 @@
                 std::cout << y; // 输出 15
                 // ---------------------------------------------------------------------------
                 ```
-
+5. Memory pool:`g++ -o memory_pool main.cpp`
+    1. 原理：
+        - 分配内存，blocksize * blocknum,memory=(char *)(malloc(blocksize * blocknum));
+        - 处理内存块，void * cur_block = meory; for(int i = 0; i < blocknum; i++) {*(void**)cur_block = cur_block + blocksize; cur_block += blocksize;} freelist = memory;
+        - 释放内存，free(memory);
+        - allocate():if(freelist == nullptr) {return nullptr;} else {void * ret = freelist; freelist = *(void**)freelist; return ret;}
+        - deallocate(ptr): *(void**)ptr = freelist; freelist = ptr; 检查内存是否在范围内。

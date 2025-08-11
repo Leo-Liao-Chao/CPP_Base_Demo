@@ -116,3 +116,10 @@
     1. 原理：
         - 使用多个哈希函数将元素映射到位数组的不同位置。std::hash<T>{}(lem) ^(i*size)
         - 查询元素是否存在时，使用相同的哈希函数计算元素的位置，并检查这些位置是否都为1。如果所有位置都为1，则元素可能存在；如果有一个位置为0，则元素一定不存在。
+7. Mutex:`g++ -o mutex main.cpp -lpthread`
+    1. 原理：
+        - 用std::atomic_flag flag=ATOMIC_FLAG_INIT; 作为信号量
+        - lock: while(flag.test_and_set(std::memory_order_acquire)) {std::this_thread::yield();} // 设置flag为true并返回旧值，如果旧值为false，则继续循环
+        - unlock: flag.clear(std::memory_order_release)
+        - RAII: LockGuard 构造lock析构unlock()，禁用拷贝和赋值
+,
